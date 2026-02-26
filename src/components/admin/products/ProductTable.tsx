@@ -30,8 +30,6 @@ export default function ProductTable({ products, selectedProducts, onSelectProdu
     const allSelected = products.length > 0 && selectedProducts.length === products.length;
 
 
-    console.log(products)
-
     return (
         <div className="overflow-x-auto">
             <table className="w-full">
@@ -56,7 +54,7 @@ export default function ProductTable({ products, selectedProducts, onSelectProdu
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {products.map((product:Product) => (
-                        <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
+                        <tr key={product.createdAt} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
                             <td className="px-6 py-4">
                                 <input
                                     type="checkbox"

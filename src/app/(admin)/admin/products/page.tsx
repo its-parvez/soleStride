@@ -1,6 +1,5 @@
 'use client';
-import { useState } from 'react';
-
+import { useEffect, useState } from 'react';
 import {
     Search,
     Filter,
@@ -11,110 +10,66 @@ import {
     Package
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
 import ProductTable from '@/components/admin/products/ProductTable';
 import NotFoundProduct from '@/components/admin/products/NotFoundProduct';
 import Link from 'next/link';
 
-// Mock product data
-const mockProducts = [
-    {
-        id: '1',
-        name: 'Nike Air Max 270',
-        category: 'Running Shoes',
-        price: 150,
-        originalPrice: 180,
-        stock: 45,
-        status: 'active',
-        featured: true,
-        rating: 4.8,
-        reviews: 124,
-        image: '/api/placeholder/80/80',
-        createdAt: '2024-01-15',
-        sales: 89
-    },
-    {
-        id: '2',
-        name: 'Adidas Ultraboost 21',
-        category: 'Running Shoes',
-        price: 180,
-        stock: 23,
-        status: 'active',
-        featured: false,
-        rating: 4.6,
-        reviews: 89,
-        image: '/api/placeholder/80/80',
-        createdAt: '2024-01-10',
-        sales: 67
-    },
-    {
-        id: '3',
-        name: 'New Balance 574 Classic',
-        category: 'Casual Sneakers',
-        price: 85,
-        originalPrice: 100,
-        stock: 0,
-        status: 'out-of-stock',
-        featured: true,
-        rating: 4.4,
-        reviews: 56,
-        image: '/api/placeholder/80/80',
-        createdAt: '2024-01-05',
-        sales: 34
-    },
-    {
-        id: '4',
-        name: 'Converse Chuck Taylor',
-        category: 'Classic Sneakers',
-        price: 55,
-        stock: 78,
-        status: 'active',
-        featured: false,
-        rating: 4.2,
-        reviews: 203,
-        image: '/api/placeholder/80/80',
-        createdAt: '2024-01-08',
-        sales: 156
-    },
-    {
-        id: '5',
-        name: 'Vans Old Skool',
-        category: 'Skate Shoes',
-        price: 60,
-        stock: 12,
-        status: 'low-stock',
-        featured: false,
-        rating: 4.3,
-        reviews: 78,
-        image: '/api/placeholder/80/80',
-        createdAt: '2024-01-12',
-        sales: 45
-    },
-    {
-        id: '6',
-        name: 'Puma RS-X',
-        category: 'Lifestyle Shoes',
-        price: 110,
-        originalPrice: 130,
-        stock: 34,
-        status: 'active',
-        featured: true,
-        rating: 4.5,
-        reviews: 67,
-        image: '/api/placeholder/80/80',
-        createdAt: '2024-01-03',
-        sales: 23
-    }
-];
+
+type Product = {
+    id: string;
+    name: string;
+    category: string;
+    price: number;
+    originalPrice?: number;
+    stock: number;
+    status: string;
+    featured: boolean;
+    rating: number;
+    reviews: number;
+    image: string;
+    createdAt: string;
+    sales: number;
+};
+
+
+interface Category {
+  id: string;
+  name: string;
+  description?: string;
+  parentId: string | null;
+  level: number;
+  highlight: boolean;
+}
 
 export default function AllProductsPage() {
-    const [products, setProducts] = useState(mockProducts);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loadingProducts, setLoadingProducts] = useState(false)
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [sortBy, setSortBy] = useState('newest');
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [showFilters, setShowFilters] = useState(false);
+    const [categories , setCategories] = useState<Category[]>([])
+
+
+    const fetchPost = async () => {
+        setLoadingProducts(true)
+        try {
+            const res = await fetch('/api/products')
+            const ProductsData = await res.json();
+            setProducts(ProductsData)
+        }
+        catch (err) {
+            console.log(err)
+        }
+        finally {
+            setLoadingProducts(false);
+        }
+
+    }
+
+
 
     // Filter products based on search and filters
     const filteredProducts = products.filter(product => {
@@ -146,8 +101,25 @@ export default function AllProductsPage() {
         }
     });
 
-    const categories = ['all', 'Running Shoes', 'Casual Sneakers', 'Classic Sneakers', 'Skate Shoes', 'Lifestyle Shoes'];
+    // const categories = ['all', 'Running Shoes', 'Casual Sneakers', 'Classic Sneakers', 'Skate Shoes', 'Lifestyle Shoes'];
     const statuses = ['all', 'active', 'out-of-stock', 'low-stock'];
+
+    const fetchCategories = async () => {
+
+        try {
+            const res = await fetch("/api/categories")
+            const data = await res.json();
+            // console.log(data)
+            setCategories(data)
+        
+        }
+        catch (error) {
+            console.log(error)
+        }
+
+
+
+    }
 
     const toggleProductSelection = (productId: string) => {
         setSelectedProducts(prev =>
@@ -170,7 +142,14 @@ export default function AllProductsPage() {
         setSelectedProducts(prev => prev.filter(id => id !== productId));
     };
 
-    
+
+    useEffect(() => {
+        fetchPost();
+        fetchCategories();
+
+    }, [])
+
+
 
     return (
 
@@ -315,9 +294,11 @@ export default function AllProductsPage() {
                                 onChange={(e) => setSelectedCategory(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#47B083] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none"
                             >
+                                <option value={"all"}>All Categories</option>
                                 {categories.map(category => (
-                                    <option key={category} value={category}>
-                                        {category === 'all' ? 'All Categories' : category}
+                                    
+                                    <option key={category.id} value={category.name}>
+                                        {category.name}
                                     </option>
                                 ))}
                             </select>
@@ -355,9 +336,9 @@ export default function AllProductsPage() {
             </div>
 
 
-            {/* Empty State */}
-            {sortedProducts.length === 0 && (
-                <NotFoundProduct/>
+            {/* Loading and Empty State */}
+            {loadingProducts ? "Loading ......" : sortedProducts.length === 0 && (
+                <NotFoundProduct />
             )}
         </div>
 

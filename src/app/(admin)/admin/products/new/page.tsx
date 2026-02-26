@@ -77,6 +77,24 @@ interface ProductFormData {
   status: "draft" | "active" | "archived";
 }
 
+
+interface Category {
+  id: string;
+  name: string;
+  description?: string;
+  parentId: string | null;
+  level: number;
+  highlight: boolean;
+}
+
+interface Brand {
+  id: string;
+  name: string;
+  description?: string;
+  logo?: string;
+  website?: string;
+}
+
 export default function AddProductPage() {
   const initialValue: ProductFormData = {
     name: "",
@@ -132,33 +150,73 @@ export default function AddProductPage() {
   const [dragOver, setDragOver] = useState(false);
   const { successToast, errorToast, infoToast, warningToast } = useToasts();
   const [dataInserting, setDatainserting] = useState<boolean>(false);
+  const [categories , setCategories] = useState<Category[]>([])
+  const [ brands  , setBrands] = useState<Brand[]>([])
 
   // Predefined options
-  const categories = [
-    "Running Shoes",
-    "Basketball Shoes",
-    "Casual Sneakers",
-    "Football Shoes",
-    "Tennis Shoes",
-    "Hiking Boots",
-    "Sandals",
-    "Formal Shoes",
-    "Skate Shoes",
-    "Training Shoes",
-  ];
+  // const categories = [
+  //   "Running Shoes",
+  //   "Basketball Shoes",
+  //   "Casual Sneakers",
+  //   "Football Shoes",
+  //   "Tennis Shoes",
+  //   "Hiking Boots",
+  //   "Sandals",
+  //   "Formal Shoes",
+  //   "Skate Shoes",
+  //   "Training Shoes",
+  // ];
 
-  const brands = [
-    "Nike",
-    "Adidas",
-    "Puma",
-    "New Balance",
-    "Reebok",
-    "Converse",
-    "Vans",
-    "Under Armour",
-    "Skechers",
-    "Asics",
-  ];
+  const fetchCategories = async () => {
+
+        try {
+            const res = await fetch("/api/categories")
+            const data = await res.json();
+            // console.log(data)
+            setCategories(data)
+            
+          
+        }
+        catch (error) {
+            console.log(error)
+        }
+
+
+
+    }
+
+    const fetchBrands = async () => {
+
+        try {
+            const res = await fetch("/api/brands")
+            const data = await res.json();
+            // console.log(data)
+            setBrands(data)
+            
+          
+        }
+        catch (error) {
+            console.log(error)
+        }
+
+
+
+    }
+
+
+  
+  // const brands = [
+  //   "Nike",
+  //   "Adidas",
+  //   "Puma",
+  //   "New Balance",
+  //   "Reebok",
+  //   "Converse",
+  //   "Vans",
+  //   "Under Armour",
+  //   "Skechers",
+  //   "Asics",
+  // ];
 
   const shoeSizes = [
     "6",
@@ -557,7 +615,11 @@ export default function AddProductPage() {
 
 
 
-
+  // ---All-functions-call-here---
+  useEffect(()=>{
+      fetchCategories();
+      fetchBrands(); 
+    },[])
 
 
   return (
@@ -677,8 +739,8 @@ export default function AddProductPage() {
                     >
                       <option value="">Select Category</option>
                       {categories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
+                        <option key={category.id} value={category.name}>
+                          {category.name}
                         </option>
                       ))}
                     </select>
@@ -697,9 +759,9 @@ export default function AddProductPage() {
                       className="w-full outline-none px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#47B083] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200"
                     >
                       <option value="">Select Brand</option>
-                      {brands.map((brand) => (
-                        <option key={brand} value={brand}>
-                          {brand}
+                      {brands.map((brand , index) => (
+                        <option key={index} value={brand.name}>
+                          {brand.name}
                         </option>
                       ))}
                     </select>
