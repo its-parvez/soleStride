@@ -107,7 +107,7 @@ const AdminSidebar = () => {
         width: collapsed ? 80 : 280,
       }}
       transition={{ duration: 0.3 }}
-      className="bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col  "
+      className="bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col h-full  "
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">

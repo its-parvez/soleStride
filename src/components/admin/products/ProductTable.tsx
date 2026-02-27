@@ -1,8 +1,10 @@
+
 import { Edit, Trash2 } from 'lucide-react';
+import Image from 'next/image';
 import React from 'react'
 
 interface Product {
-    id: string;
+    _id: string;
     name: string;
     category: string;
     price: number;
@@ -10,6 +12,10 @@ interface Product {
     stock: number;
     status: string;
     featured: boolean;
+    featuredImage: {
+        id: string,
+        url: string,
+    };
     rating: number;
     reviews: number;
     image: string;
@@ -28,6 +34,7 @@ interface ProductTableProps {
 
 export default function ProductTable({ products, selectedProducts, onSelectProduct, onSelectAll, onDelete }: ProductTableProps) {
     const allSelected = products.length > 0 && selectedProducts.length === products.length;
+
 
 
     return (
@@ -53,22 +60,21 @@ export default function ProductTable({ products, selectedProducts, onSelectProdu
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {products.map((product:Product) => (
+                    {products.map((product: Product) => (
                         <tr key={product.createdAt} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
                             <td className="px-6 py-4">
                                 <input
                                     type="checkbox"
-                                    checked={selectedProducts.includes(product.id)}
-                                    onChange={() => onSelectProduct(product.id)}
+                                    checked={selectedProducts.includes(product._id)}
+                                    onChange={() => onSelectProduct(product._id)}
                                     className="w-4 h-4 rounded border-gray-300 text-[#47B083] focus:ring-[#47B083]"
                                 />
                             </td>
                             <td className="px-6 py-4">
                                 <div className="flex items-center space-x-3">
                                     <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                                        <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded flex items-center justify-center text-gray-500 dark:text-gray-400 text-xs">
-                                            Img
-                                        </div>
+                                        <Image className='object-cover rounded-lg' width={100} height={100} src={product.featuredImage?.url || "/placeholder.png"} alt='product image' />
+
                                     </div>
                                     <div>
                                         <div className="font-medium text-gray-900 dark:text-white">{product.name}</div>
@@ -94,18 +100,18 @@ export default function ProductTable({ products, selectedProducts, onSelectProdu
                             <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{product.stock}</td>
                             <td className="px-6 py-4">
                                 <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium `}>
-                                     {product.status}
+                                    {product.status}
                                 </span>
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{product.sales}</td>
                             <td className="px-6 py-4">
                                 <div className="flex items-center space-x-2">
-                                    <button className="p-1 text-gray-400 hover:text-blue-600 transition-colors duration-200">
+                                    <button className="p-1 text-gray-400 hover:text-blue-600 transition-colors duration-200 cursor-pointer">
                                         <Edit size={16} />
                                     </button>
                                     <button
-                                        onClick={() => onDelete(product.id)}
-                                        className="p-1 text-gray-400 hover:text-red-600 transition-colors duration-200"
+                                        onClick={() => onDelete(product._id)}
+                                        className="p-1 text-gray-400 hover:text-red-600 transition-colors duration-200 hover:cursor-pointer"
                                     >
                                         <Trash2 size={16} />
                                     </button>

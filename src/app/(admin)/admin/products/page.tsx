@@ -15,8 +15,8 @@ import NotFoundProduct from '@/components/admin/products/NotFoundProduct';
 import Link from 'next/link';
 
 
-type Product = {
-    id: string;
+interface Product {
+    _id: string;
     name: string;
     category: string;
     price: number;
@@ -24,12 +24,16 @@ type Product = {
     stock: number;
     status: string;
     featured: boolean;
+    featuredImage: {
+        id: string,
+        url: string,
+    };
     rating: number;
     reviews: number;
     image: string;
     createdAt: string;
     sales: number;
-};
+}
 
 
 interface Category {
@@ -51,6 +55,8 @@ export default function AllProductsPage() {
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [showFilters, setShowFilters] = useState(false);
     const [categories , setCategories] = useState<Category[]>([])
+    
+    
 
 
     const fetchPost = async () => {
@@ -59,6 +65,7 @@ export default function AllProductsPage() {
             const res = await fetch('/api/products')
             const ProductsData = await res.json();
             setProducts(ProductsData)
+            
         }
         catch (err) {
             console.log(err)
@@ -101,7 +108,7 @@ export default function AllProductsPage() {
         }
     });
 
-    // const categories = ['all', 'Running Shoes', 'Casual Sneakers', 'Classic Sneakers', 'Skate Shoes', 'Lifestyle Shoes'];
+    
     const statuses = ['all', 'active', 'out-of-stock', 'low-stock'];
 
     const fetchCategories = async () => {
@@ -133,13 +140,14 @@ export default function AllProductsPage() {
         setSelectedProducts(prev =>
             prev.length === sortedProducts.length
                 ? []
-                : sortedProducts.map(p => p.id)
+                : sortedProducts.map(p => p._id)
         );
     };
 
     const deleteProduct = (productId: string) => {
-        setProducts(prev => prev.filter(p => p.id !== productId));
-        setSelectedProducts(prev => prev.filter(id => id !== productId));
+        // setProducts(prev => prev.filter(p => p.id !== productId));
+        // setSelectedProducts(prev => prev.filter(id => id !== productId));
+        console.log(productId)
     };
 
 
