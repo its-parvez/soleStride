@@ -1,27 +1,9 @@
 
+import { Product } from '@/types/product.types';
 import { Edit, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react'
 
-interface Product {
-    _id: string;
-    name: string;
-    category: string;
-    price: number;
-    originalPrice?: number;
-    stock: number;
-    status: string;
-    featured: boolean;
-    featuredImage: {
-        id: string,
-        url: string,
-    };
-    rating: number;
-    reviews: number;
-    image: string;
-    createdAt: string;
-    sales: number;
-}
 
 
 interface ProductTableProps {
@@ -30,9 +12,10 @@ interface ProductTableProps {
     onSelectProduct: (productId: string) => void;
     onSelectAll: () => void;
     onDelete: (productId: string) => void;
+    onEdit : (productId : string) => void 
 }
 
-export default function ProductTable({ products, selectedProducts, onSelectProduct, onSelectAll, onDelete }: ProductTableProps) {
+export default function ProductTable({ products, selectedProducts, onSelectProduct, onSelectAll, onDelete , onEdit}: ProductTableProps) {
     const allSelected = products.length > 0 && selectedProducts.length === products.length;
 
 
@@ -106,7 +89,7 @@ export default function ProductTable({ products, selectedProducts, onSelectProdu
                             <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{product.sales}</td>
                             <td className="px-6 py-4">
                                 <div className="flex items-center space-x-2">
-                                    <button className="p-1 text-gray-400 hover:text-blue-600 transition-colors duration-200 cursor-pointer">
+                                    <button onClick={()=> onEdit(product._id)} className="p-1 text-gray-400 hover:text-blue-600 transition-colors duration-200 cursor-pointer">
                                         <Edit size={16} />
                                     </button>
                                     <button

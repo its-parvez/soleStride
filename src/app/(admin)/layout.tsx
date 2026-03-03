@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";;
 import { Metadata } from "next";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminNavbar from "@/components/admin/AdminNavbar";
+import TanstackQuery from "@/providers/TanstackQuery";
 
 
 export const metadata: Metadata = {
@@ -27,6 +28,9 @@ export default function RootLayout({
       <body
         className="flex h-screen bg-gray-50 dark:bg-gray-900  antialiased max-w-[85rem] mx-auto"
       >
+
+        <TanstackQuery>
+
         <ReduxProvider>
           <ToastProvider>
             <ThemeProvider>
@@ -47,6 +51,7 @@ export default function RootLayout({
             </ThemeProvider>
           </ToastProvider>
         </ReduxProvider>
+        </TanstackQuery>
       </body>
     </html>
   );

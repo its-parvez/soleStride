@@ -3,22 +3,15 @@
 import { useRef, useEffect, useState } from "react";
 import styles from "@/styles/Slider.module.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { SliderItems } from "@/Fakedata/Slider";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import { Product } from "@/types/product.types";
 
-export interface SliderItem {
-  id: number;
-  image: string;
-  title: string;
-  topic: string;
-  shortDesc: string;
-  detailTitle: string;
-  longDesc: string;
-  price: string;
-  material: string;
-  fit: string;
-  sole: string;
-  closure: string;
+
+const fetchProducts = async () => {
+  const res = await fetch("/api/products?status=active&featured=true")
+  if (!res.ok) throw new Error("Failed to fetch products")
+  return res.json();
 }
 
 const CarouselSlider = () => {
@@ -27,6 +20,13 @@ const CarouselSlider = () => {
   const autoSlideInterval = useRef<NodeJS.Timeout | null>(null);
   const [direction, setDirection] = useState<"next" | "prev" | null>(null);
   const [scrolled, setScrolled] = useState(false);
+
+
+  const { data = [], isLoading, error } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts
+  })
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -87,14 +87,14 @@ const CarouselSlider = () => {
     startAutoSlide();
   };
 
-  // useEffect(() => {
-  //   startAutoSlide();
-  //   return () => {
-  //     if (autoSlideInterval.current) {
-  //       clearInterval(autoSlideInterval.current);
-  //     }
-  //   };
-  // });
+  useEffect(() => {
+    startAutoSlide();
+    return () => {
+      if (autoSlideInterval.current) {
+        clearInterval(autoSlideInterval.current);
+      }
+    };
+  });
 
   return (
     <div
@@ -104,25 +104,25 @@ const CarouselSlider = () => {
       onTouchStart={handleTouch}
     >
       <div ref={listRef} className={styles.list}>
-        {SliderItems.map((item: SliderItem, index: number) => (
+        { isLoading ? "Loading ...": data.map((item: Product, index: number) => (
           <div
             key={index}
             className={`${styles.item} text-black dark:bg-transparent dark:text-white`}
           >
-            <Image fill sizes="100" src={item.image} alt={item.topic} />
+            <Image fill sizes="100" src={item.featuredImage.url} alt={item.name} />
 
             <div className={`${styles.introduce}`}>
-              <div className={`${styles.title} dark:text-white text-black`}>
-                {item.title}
+              <div className={`${styles.title} dark:text-white text-black uppercase`}>
+                {item.category}
               </div>
-              <div className={`${styles.topic} dark:text-white text-black`}>
-                {item.topic}
+              <div className={`${styles.topic} dark:text-white text-black uppercase`}>
+                {item.name}
               </div>
               <div className={`${styles.des} dark:text-gray-300 text-[#5559]`}>
-                {item.shortDesc}
+                {item.description}
               </div>
               <button
-                className={`${styles.seeMore} dark:text-white text-black `} 
+                className={`${styles.seeMore} dark:text-white text-black uppercase`}
               >
                 SEE MORE ↗
               </button>
@@ -132,9 +132,8 @@ const CarouselSlider = () => {
       </div>
 
       <div
-        className={` ${styles.arrows} ${
-          scrolled ? "opacity-0 invisible" : "opacity-100 visible"
-        }}`}
+        className={` ${styles.arrows} ${scrolled ? "opacity-0 invisible" : "opacity-100 visible"
+          }}`}
       >
         <button
           className={`${styles.prevButton} text-black dark:text-white`}

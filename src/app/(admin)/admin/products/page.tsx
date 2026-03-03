@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState, useTransition } from 'react';
 import {
     Search,
     Filter,
@@ -13,73 +13,95 @@ import { motion } from 'framer-motion';
 import ProductTable from '@/components/admin/products/ProductTable';
 import NotFoundProduct from '@/components/admin/products/NotFoundProduct';
 import Link from 'next/link';
+import { Product } from '@/types/product.types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import ProductDltConfirmation from '@/components/admin/modals/ProductDltConfrimation';
+import ProductEditModal from '@/components/admin/modals/productEditModal';
+import { useRouter } from 'next/navigation';
 
 
-interface Product {
-    _id: string;
-    name: string;
-    category: string;
-    price: number;
-    originalPrice?: number;
-    stock: number;
-    status: string;
-    featured: boolean;
-    featuredImage: {
-        id: string,
-        url: string,
-    };
-    rating: number;
-    reviews: number;
-    image: string;
-    createdAt: string;
-    sales: number;
-}
 
 
 interface Category {
-  id: string;
-  name: string;
-  description?: string;
-  parentId: string | null;
-  level: number;
-  highlight: boolean;
+    id: string;
+    name: string;
+    description?: string;
+    parentId: string | null;
+    level: number;
+    highlight: boolean;
 }
 
+
+
 export default function AllProductsPage() {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loadingProducts, setLoadingProducts] = useState(false)
+    const router = useRouter();
+    const queryClient = useQueryClient();
+    const [isEditLoading, StartEditLoading] = useTransition();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [sortBy, setSortBy] = useState('newest');
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [showFilters, setShowFilters] = useState(false);
-    const [categories , setCategories] = useState<Category[]>([])
+    const [isDltModal, setDltModal] = useState(false);
+    const [deleteId, setdeleteId] = useState<string | null>(null);
+    const [editProductId, setEditProductId] = useState<string | null>(null)
+    const [isdEditModal, setEditModal] = useState(false);
+
+
+
+    const { data , isLoading: productLoading } = useQuery({
+        queryKey: ["products"],
+        queryFn: async () => {
+            const res = await fetch("/api/products");
+            if (!res.ok) throw new Error("Failed to fetch");
+            return res.json();
+        }
+    })
+
+    const products = Array.isArray(data)? data : [];
+
+
+
+
     
-    
+
+    const { data: categories = [] } = useQuery({
+        queryKey: ["categories"],
+        queryFn: async () => {
+            const res = await fetch("/api/categories")
+            if (!res.ok) throw new Error("Failed to fetch");
+            return res.json();
+        }
+    })
 
 
-    const fetchPost = async () => {
-        setLoadingProducts(true)
-        try {
-            const res = await fetch('/api/products')
-            const ProductsData = await res.json();
-            setProducts(ProductsData)
-            
-        }
-        catch (err) {
-            console.log(err)
-        }
-        finally {
-            setLoadingProducts(false);
-        }
+    const deleteProduct = useMutation({
+        mutationKey: ["products", 'delete'],
+        mutationFn: async (id: string) => {
+            const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+            if (!res.ok) throw new Error("Delete failed");
+            return res.json();
 
-    }
+
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["products"]
+            })
+
+            setDltModal(false);
+
+        }
+    })
+
+
+
 
 
 
     // Filter products based on search and filters
-    const filteredProducts = products.filter(product => {
+    const filteredProducts = products?.filter((product: Product) => {
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             product.category.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
@@ -108,25 +130,10 @@ export default function AllProductsPage() {
         }
     });
 
-    
+
     const statuses = ['all', 'active', 'out-of-stock', 'low-stock'];
 
-    const fetchCategories = async () => {
 
-        try {
-            const res = await fetch("/api/categories")
-            const data = await res.json();
-            // console.log(data)
-            setCategories(data)
-        
-        }
-        catch (error) {
-            console.log(error)
-        }
-
-
-
-    }
 
     const toggleProductSelection = (productId: string) => {
         setSelectedProducts(prev =>
@@ -144,19 +151,11 @@ export default function AllProductsPage() {
         );
     };
 
-    const deleteProduct = (productId: string) => {
-        // setProducts(prev => prev.filter(p => p.id !== productId));
-        // setSelectedProducts(prev => prev.filter(id => id !== productId));
-        console.log(productId)
-    };
 
 
-    useEffect(() => {
-        fetchPost();
-        fetchCategories();
 
-    }, [])
 
+    if (productLoading) return <p>Loading ...</p>
 
 
     return (
@@ -205,7 +204,7 @@ export default function AllProductsPage() {
                         <div>
                             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Out of Stock</p>
                             <p className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">
-                                {products.filter(p => p.status === 'out-of-stock').length}
+                                {products.filter((p: Product) => p.status === 'out-of-stock').length}
                             </p>
                         </div>
                         <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-xl">
@@ -219,7 +218,7 @@ export default function AllProductsPage() {
                         <div>
                             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Low Stock</p>
                             <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">
-                                {products.filter(p => p.status === 'low-stock').length}
+                                {products.filter((p: Product) => p.status === 'low-stock').length}
                             </p>
                         </div>
                         <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl">
@@ -233,7 +232,7 @@ export default function AllProductsPage() {
                         <div>
                             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Featured</p>
                             <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">
-                                {products.filter(p => p.featured).length}
+                                {products.filter((p: Product) => p.featured).length}
                             </p>
                         </div>
                         <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
@@ -303,8 +302,8 @@ export default function AllProductsPage() {
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#47B083] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none"
                             >
                                 <option value={"all"}>All Categories</option>
-                                {categories.map(category => (
-                                    
+                                {categories.map((category: Category) => (
+
                                     <option key={category.id} value={category.name}>
                                         {category.name}
                                     </option>
@@ -339,15 +338,49 @@ export default function AllProductsPage() {
                     selectedProducts={selectedProducts}
                     onSelectProduct={toggleProductSelection}
                     onSelectAll={toggleAllSelection}
-                    onDelete={deleteProduct}
+                    onDelete={(id: string) => {
+                        setDltModal(true)
+                        setdeleteId(id)
+
+                    }}
+                    onEdit={(id: string) => {
+                        setEditModal(true)
+                        setEditProductId(id)
+                    }}
                 />
             </div>
 
 
             {/* Loading and Empty State */}
-            {loadingProducts ? "Loading ......" : sortedProducts.length === 0 && (
+            {productLoading ? "Loading ......" : sortedProducts.length === 0 && (
                 <NotFoundProduct />
             )}
+
+            <ProductDltConfirmation
+                onClose={() => setDltModal(false)}
+                isOpen={isDltModal}
+                onConfirm={() => {
+                    if (deleteId) {
+                        deleteProduct.mutate(deleteId)
+                    }
+                }}
+                isLoading={deleteProduct.isPending}
+            />
+
+            <ProductEditModal
+                onClose={() => setEditModal(false)}
+                isOpen={isdEditModal}
+                onConfirm={() => {
+                    StartEditLoading(() => {
+                        router.push(`/admin/products/edit/${editProductId}`)
+
+                    })
+                }}
+                isLoading={isEditLoading}
+
+            />
+
+
         </div>
 
     );

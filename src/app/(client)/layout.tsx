@@ -9,6 +9,8 @@ import Navbar from "@/components/Navbar";
 import BackToTop from "@/components/modals/BackToTop";
 import Footer from "@/components/Footer";
 import { Poppins } from "next/font/google";
+import TanstackQuery from "@/providers/TanstackQuery";
+
 
 
 export const metadata: Metadata = {
@@ -17,8 +19,8 @@ export const metadata: Metadata = {
 };
 
 const poppins = Poppins({
-  subsets : ["latin"],
-  weight : ['200', '300', '400', '500', '600','700', '800', '900']
+  subsets: ["latin"],
+  weight: ['200', '300', '400', '500', '600', '700', '800', '900']
 })
 
 
@@ -29,30 +31,34 @@ export default function RootLayout({
 }>) {
 
 
-
   return (
     <html lang="en" suppressHydrationWarning >
       <body
-        className= {` ${poppins.className} bg-gray-50 dark:bg-gray-900  antialiased `}
+        className={` ${poppins.className} bg-gray-50 dark:bg-gray-900  antialiased `}
       >
-        <ReduxProvider>
-          <ToastProvider>
-            <ThemeProvider>
-              <nav>
-                <Navbar/>
-              </nav>
-              <main className="mt-16">
-                {children}
-                <BackToTop/>
-              </main>
-              <footer>
-                <Footer/>
-              </footer>
+        
+           <TanstackQuery>
+            
+          <ReduxProvider>
+            <ToastProvider>
+              <ThemeProvider>
+                <nav>
+                  <Navbar />
+                </nav>
+                <main className="mt-16">
+                  {children}
+                  <BackToTop />
+                </main>
+                <footer>
+                  <Footer />
+                </footer>
 
-             
-            </ThemeProvider>
-          </ToastProvider>
-        </ReduxProvider>
+
+              </ThemeProvider>
+            </ToastProvider>
+          </ReduxProvider>
+           </TanstackQuery>
+       
       </body>
     </html>
   );

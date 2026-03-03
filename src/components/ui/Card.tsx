@@ -1,15 +1,24 @@
 "use client";
 import Image from 'next/image';
 import React from 'react';
-import shoe from "@/../../public/assets/exampleShoes/img1.png"
 import { Heart, Star } from 'lucide-react';
+import { Product } from '@/types/product.types';
 
-const Card: React.FC = () => {
+
+interface CardProps {
+  productData: Product
+}
+
+const Card = ({ productData }: CardProps) => {
+
+  
+
+
   return (
 
     <div className="w-full max-w-xs sm:max-w-sm md:max-w-md">
       <div className=" relative group bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl dark:hover:shadow-gray-900/50 transition-all duration-700 ease-out overflow-visible">
-      <button className="absolute  active:scale-85 top-4 left-4 z-30 p-2 bg-white hover:cursor-pointer dark:bg-gray-700 rounded-full shadow-md hover:shadow-lg transition-all duration-300 ">
+        <button className="absolute  active:scale-85 top-4 left-4 z-30 p-2 bg-white hover:cursor-pointer dark:bg-gray-700 rounded-full shadow-md hover:shadow-lg transition-all duration-300 ">
           <Heart
             size={20}
             className="text-gray-400 hover:text-red  transition-colors duration-200"
@@ -20,24 +29,26 @@ const Card: React.FC = () => {
         {/* Product Image Section */}
         <div className="relative h-48 sm:h-56 md:h-64 flex items-center justify-center pt-2 pb-8 overflow-visible"
           onMouseEnter={(e) => {
-          const bgImage = e.currentTarget.querySelector('.bg-image') as HTMLImageElement;
-          if (bgImage) {
-            bgImage.style.filter = 'blur(12px) drop-shadow(0 15px 35px rgba(0,0,0,0.25))';
-          }
-        }}
-        onMouseLeave={(e) => {
-          const bgImage = e.currentTarget.querySelector('.bg-image') as HTMLImageElement;
-          if (bgImage) {
-            bgImage.style.filter = 'drop-shadow(0 15px 35px rgba(0,0,0,0.25))';
-          }
-        }}
-        
-        
+            const bgImage = e.currentTarget.querySelector('.bg-image') as HTMLImageElement;
+            if (bgImage) {
+              bgImage.style.filter = 'blur(12px) drop-shadow(0 15px 35px rgba(0,0,0,0.25))';
+            }
+          }}
+          onMouseLeave={(e) => {
+            const bgImage = e.currentTarget.querySelector('.bg-image') as HTMLImageElement;
+            if (bgImage) {
+              bgImage.style.filter = 'drop-shadow(0 15px 35px rgba(0,0,0,0.25))';
+            }
+          }}
+
+
         >
           <div className="relative">
             {/* Background Image */}
             <Image
-              src={shoe}
+              width={100}
+              height={100}
+              src={productData.featuredImage.url}
               alt="Premium Sneaker with Background"
               className="bg-image w-74 h-54 sm:w-80 sm:h-56 md:w-96 md:h-64 object-contain transform transition-all duration-700 ease-out
                   relative z-10
@@ -51,7 +62,9 @@ const Card: React.FC = () => {
 
             {/* Foreground Image */}
             <Image
-              src={shoe}
+              width={100}
+              height={100}
+              src={productData.featuredImage.url}
               alt="Premium Sneaker"
               className="absolute inset-0 w-74 h-54 sm:w-80 sm:h-56 md:w-96 md:h-64 object-contain transform transition-all duration-700 ease-out
                   opacity-0 scale-90 translate-y-4 rotate-1 z-20
@@ -77,13 +90,17 @@ const Card: React.FC = () => {
           <div className="mb-4">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-1 
                      transition-all duration-300 group-hover:text-[#47b083] ">
-              Jordan Retro High
+              {
+                productData.name || " Jordan Retro High"
+              }
             </h3>
           </div>
 
           {/* Description */}
           <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base mb-5 leading-relaxed">
-            Iconic basketball heritage meets modern street style. Premium leather and classic design.
+            {
+              productData.description || "There are no description !!"
+            }
           </p>
 
           {/* Price & Rating */}
@@ -91,9 +108,9 @@ const Card: React.FC = () => {
             <div className="flex items-center space-x-3">
               <span className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white 
                          transition-all duration-300 group-hover:text-[#47b083] ">
-                $149.99
+                ${productData.price}
               </span>
-              <span className="text-sm text-[#47b083] dark:text-[#47b083] line-through">$199.99</span>
+              <span className="text-sm text-[#47b083] dark:text-[#47b083] line-through">${productData.originalPrice}</span>
             </div>
 
             {/* Rating */}

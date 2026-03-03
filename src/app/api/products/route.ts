@@ -19,10 +19,21 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const status = searchParams.get("status");
+  const featured = searchParams.get("featured");
+
   try {
     await connectDB();
-    const products = await Product.find({});
+    const filter: any = {};
+    if (status && status !== "all") {
+      filter.status = status;
+    }
+    if (featured !== null) {
+      filter.featured = featured === "true";
+    }
+    const products = await Product.find(filter);
     return NextResponse.json(products, { status: 200 });
   } catch (error: unknown) {
     let message = "Something went wrong";
