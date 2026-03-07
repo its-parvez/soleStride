@@ -45,7 +45,7 @@ const AdminSidebar = () => {
       submenu: [
         { label: "All Products", path: "/admin/products" },
         { label: "Add New", path: "/admin/products/new" },
-        { label: "Categories", path: "/admin/products/categories" },
+        { label: "Add Category & Brands", path: "/admin/products/addcategory&brands" },
       ],
     },
     {
