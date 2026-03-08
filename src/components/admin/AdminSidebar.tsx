@@ -46,6 +46,7 @@ const AdminSidebar = () => {
         { label: "All Products", path: "/admin/products" },
         { label: "Add New", path: "/admin/products/new" },
         { label: "Add Category & Brands", path: "/admin/products/addcategory&brands" },
+        { label: "All Category & Brands", path: "/admin/products/allcategory&brands" },
       ],
     },
     {

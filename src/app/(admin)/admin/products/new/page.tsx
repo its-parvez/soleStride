@@ -24,7 +24,6 @@ import SafeMotion from "@/wrappers/SafeMotion";
 import { useToasts } from "@/hooks/useToasts";
 import slugify from "slugify";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
@@ -103,7 +102,7 @@ export default function AddProductPage() {
 
   }
 
-  const router = useRouter();
+ 
   const [formData, setFormData] = useState<ProductFormData>(initialValue);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [newTag, setNewTag] = useState("");
