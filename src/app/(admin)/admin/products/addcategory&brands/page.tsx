@@ -106,6 +106,7 @@ const CategoryBrandUpload: NextPage = () => {
         })
 
         const data = await res.json();
+        console.log(data)
 
         if (data) {
           successToast("successfully published categories", "New categories added!");
