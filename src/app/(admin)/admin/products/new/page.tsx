@@ -264,6 +264,8 @@ export default function AddProductPage() {
     }));
   };
 
+ 
+
   const addTag = () => {
     if (newTag && !formData.tags.includes(newTag)) {
       setFormData((prev) => ({
@@ -628,8 +630,8 @@ export default function AddProductPage() {
                       className="w-full outline-none px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#47B083] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200"
                     >
                       <option value="">Select Category</option>
-                      {categories.map((category: Category) => (
-                        <option key={category.id} value={category.name}>
+                      {categories.map((category: Category , index:number ) => (
+                        <option key={index} value={category.name}>
                           {category.name}
                         </option>
                       ))}

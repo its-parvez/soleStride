@@ -1,16 +1,11 @@
 "use client";
-import { useState } from "react";
-import { Plus, Star, Package, Trash2 } from "lucide-react";
-import Link from "next/link";
+
+import { Trash2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { Brand } from "@/models/brands";
-import { error } from "console";
-import { useToast } from "@/providers/TostProvider";
 import { useToasts } from "@/hooks/useToasts";
 
 export default function allcategoryandbrands() {
-    const router = useRouter();
+
     const queryClient = useQueryClient();
     const { successToast } = useToasts();
 
@@ -20,9 +15,13 @@ export default function allcategoryandbrands() {
         queryFn: async () => {
             const res = await fetch("/api/categories");
             if (!res.ok) throw new Error("Failed to fetch");
+
             return res.json();
+
         },
     });
+
+
 
     const { data: brands = [], isLoading: brandsLoading } = useQuery({
         queryKey: ["brands"],
@@ -40,6 +39,9 @@ export default function allcategoryandbrands() {
         return categories.filter((cat: Category) => cat.parentId === parentId);
     };
     const mainCategories = categories.filter((cat: Category) => cat.level === 0);
+    const hassubcategories = (id: string) => {
+        return getSubcategories(id).filter((cat: Category) => cat.parentId === id).length > 0
+    }
 
 
 
@@ -55,20 +57,21 @@ export default function allcategoryandbrands() {
             queryClient.invalidateQueries({
                 queryKey: ["brands"]
             })
-         successToast("Successfully Deleted ", "The Brand is Deleted ");
+            successToast("Successfully Deleted ", "The Brand is Deleted ");
         }
     })
 
     const handleCategoryDelete = useMutation({
-        mutationKey : ["categories" , "delete"], 
-        mutationFn : async(id : string)=>{
-            const res = await fetch(`/api/categories/${id}`, {method : "DELETE"})
-            if(!res.ok) throw new Error("Something wrong try again!")
+        mutationKey: ["categories", "delete"],
+        mutationFn: async (id: string) => {
+
+            const res = await fetch(`/api/categories/${id}`, { method: "DELETE" })
+            if (!res.ok) throw new Error("Something wrong try again!")
             return res.json()
-        }, 
-        onSuccess:()=>{
+        },
+        onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey : ["categories"]
+                queryKey: ["categories"]
             })
             successToast("Successfully Deleted ", "The category is Deleted ");
         }
@@ -120,13 +123,14 @@ export default function allcategoryandbrands() {
                                                             📁 {category.name}
                                                         </h3>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                            Lorem ipsum dolor sit amet consectetur, adipisicing
-                                                            elit. Minima, asperiores!
+                                                            {category.description || "No Description Exists"}
                                                         </p>
                                                     </div>
                                                 </div>
 
-                                                <button onClick={()=> handleCategoryDelete.mutate(category._id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer">
+                                                <button onClick={() => handleCategoryDelete.mutate(category._id)}
+                                                    className={`text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer 
+                                                ${hassubcategories(category.id) ? "hidden" : "block"} `}>
                                                     <Trash2 size={22} />
                                                 </button>
                                             </div>
@@ -146,7 +150,7 @@ export default function allcategoryandbrands() {
                                                                 </p>
                                                             </div>
                                                         </div>
-                                                        <button onClick={()=> handleCategoryDelete.mutate(category._id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer">
+                                                        <button onClick={() => handleCategoryDelete.mutate(category._id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer">
                                                             <Trash2 size={18} />
                                                         </button>
                                                     </div>

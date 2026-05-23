@@ -24,6 +24,7 @@ export async function POST(req: Request) {
 
   try {
     const category = await Category.create(body);
+
     return NextResponse.json(category);
   } catch (error: unknown) {
     let message = "Something went wrong";

@@ -106,15 +106,16 @@ const CategoryBrandUpload: NextPage = () => {
         })
 
         const data = await res.json();
+         console.log("Here is the datas" , data)
         
-        if (!data.ok) {
+        if (!res.ok) {
           return errorToast("Something Went Wrong Try Again !")
         }
 
         successToast("successfully published categories", "New categories added!");
           setCategoryForm(initialvalueCategory);
           setCategories([])
-          console.log(data)
+         
 
       }
       else if (active == 'brand') {
@@ -148,6 +149,8 @@ const CategoryBrandUpload: NextPage = () => {
     }
 
   }
+
+  
 
  
 
@@ -385,7 +388,7 @@ const CategoryBrandUpload: NextPage = () => {
 
                           <button
                             onClick={() => deleteCategory(category.id)}
-                            className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer"
+                            className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer "
                           >
                             <Trash2 size={22} />
                           </button>
